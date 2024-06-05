@@ -1,0 +1,509 @@
+2.BFS:
+from collections import defaultdict
+
+class Graph:
+
+	def __init__(self):
+
+
+		self.graph = defaultdict(list)
+
+	def addEdge(self, u, v):
+		self.graph[u].append(v)
+
+	def BFS(self, s):
+
+		visited = [False] * (max(self.graph) + 1)
+		queue = []
+		queue.append(s)
+		visited[s] = True
+
+		while queue:
+			s = queue.pop(0)
+			print(s, end=" ")
+			for i in self.graph[s]:
+				if visited[i] == False:
+					queue.append(i)
+					visited[i] = True
+
+
+if __name__ == '__main__':
+	g = Graph()
+	g.addEdge(0, 1)
+	g.addEdge(0, 2)
+	g.addEdge(1, 2)
+	g.addEdge(2, 0)
+	g.addEdge(2, 3)
+	g.addEdge(3, 3)
+
+	print("Following is Breadth First Traversal"
+		" (starting from vertex 2)")
+	g.BFS(2)
+
+
+2.DFS:
+from collections import defaultdict
+
+class Graph:
+
+
+	def __init__(self):
+
+
+		self.graph = defaultdict(list)
+
+
+
+	def addEdge(self, u, v):
+		self.graph[u].append(v)
+
+
+	def DFSUtil(self, v, visited):
+		visited.add(v)
+		print(v, end=' ')
+
+		for neighbour in self.graph[v]:
+			if neighbour not in visited:
+				self.DFSUtil(neighbour, visited)
+
+	def DFS(self, v):
+
+		visited = set()
+
+		self.DFSUtil(v, visited)
+
+
+if __name__ == "__main__":
+	g = Graph()
+	g.addEdge(0, 1)
+	g.addEdge(0, 2)
+	g.addEdge(1, 2)
+	g.addEdge(2, 0)
+	g.addEdge(2, 3)
+	g.addEdge(3, 3)
+
+	print("Following is Depth First Traversal (starting from vertex 2)")
+
+	g.DFS(2)
+
+
+3.Water jug:
+
+def water_jug(a, b, c):
+
+    jug1, jug2 = 0, 0
+
+
+    result = ""
+
+
+    while jug1 != c and jug2 != c:
+
+        if jug1 == 0:
+            jug1 = a
+            result += "Fill jug1\n"
+
+        elif jug1 > 0 and jug2 < b:
+            space_in_jug2 = b - jug2
+            amount_to_pour = min(jug1, space_in_jug2)
+            jug1 -= amount_to_pour
+            jug2 += amount_to_pour
+            result += "Pour water from jug1 to jug2\n"
+
+        elif jug2 == b:
+            jug2 = 0
+            result += "Empty jug2\n"
+        elif jug2 > 0 and jug1 < a:
+            space_in_jug1 = a - jug1
+            amount_to_pour = min(jug2, space_in_jug1)
+            jug2 -= amount_to_pour
+            jug1 += amount_to_pour
+            result += "Pour water from jug2 to jug1\n"
+
+    if jug1 == c or jug2 == c:
+        result += f"Target volume of {c} gallons achieved\n"
+    else:
+        result += f"Cannot achieve target volume of {c} gallons\n"
+
+    return result
+
+a, b, c = 4, 3, 2
+print(water_jug(a, b, c))
+
+
+4. A*informed:
+
+import math
+import heapq
+class Cell:
+  def __init__(self):
+    self.parent_i = 0 
+    self.parent_j = 0 
+    self.f = float('inf') 
+    self.g = float('inf') 
+    self.h = 0 
+ROW = 9
+COL = 10
+def is_valid(row, col):
+  return (row >= 0) and (row < ROW) and (col >= 0) and (col < COL)
+def is_unblocked(grid, row, col):
+  return grid[row][col] == 1
+def is_destination(row, col, dest):
+  return row == dest[0] and col == dest[1]
+def calculate_h_value(row, col, dest):
+  return ((row - dest[0]) ** 2 + (col - dest[1]) ** 2) ** 0.5
+def trace_path(cell_details, dest):
+  print("The Path is ")
+  path = []
+  row = dest[0]
+  col = dest[1]
+  while not (cell_details[row][col].parent_i == row and cell_details[row][col].parent_j == col):
+    path.append((row, col))
+    temp_row = cell_details[row][col].parent_i
+    temp_col = cell_details[row][col].parent_j
+    row = temp_row
+    col = temp_col
+  path.append((row, col))
+  path.reverse()
+  for i in path:
+    print("->", i, end=" ")
+  print()
+def a_star_search(grid, src, dest):
+  if not is_valid(src[0], src[1]) or not is_valid(dest[0], dest[1]):
+    print("Source or destination is invalid")
+    return
+  if not is_unblocked(grid, src[0], src[1]) or not is_unblocked(grid, dest[0], dest[1]):
+    print("Source or the destination is blocked")
+    return
+  if is_destination(src[0], src[1], dest):
+    print("We are already at the destination")
+    return
+  closed_list = [[False for _ in range(COL)] for _ in range(ROW)]
+  cell_details = [[Cell() for _ in range(COL)] for _ in range(ROW)]
+  i = src[0]
+  j = src[1]
+  cell_details[i][j].f = 0
+  cell_details[i][j].g = 0
+  cell_details[i][j].h = 0
+  cell_details[i][j].parent_i = i
+  cell_details[i][j].parent_j = j
+  open_list = []
+  heapq.heappush(open_list, (0.0, i, j))
+  found_dest = False
+  while len(open_list) > 0:
+    p = heapq.heappop(open_list)
+    i = p[1]
+    j = p[2]
+    closed_list[i][j] = True
+    directions = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+    for dir in directions:
+      new_i = i + dir[0]
+      new_j = j + dir[1]
+      if is_valid(new_i, new_j) and is_unblocked(grid, new_i, new_j) and not closed_list[new_i][new_j]:
+        if is_destination(new_i, new_j, dest):
+          cell_details[new_i][new_j].parent_i = i
+          cell_details[new_i][new_j].parent_j = j
+          print("The destination cell is found")
+          trace_path(cell_details, dest)
+          found_dest = True
+          return
+        else:
+          g_new = cell_details[i][j].g + 1.0
+          h_new = calculate_h_value(new_i, new_j, dest)
+          f_new = g_new + h_new
+          if cell_details[new_i][new_j].f == float('inf') or cell_details[new_i][new_j].f > f_new:
+            heapq.heappush(open_list, (f_new, new_i, new_j))
+            cell_details[new_i][new_j].f = f_new
+            cell_details[new_i][new_j].g = g_new
+            cell_details[new_i][new_j].h = h_new
+            cell_details[new_i][new_j].parent_i = i
+            cell_details[new_i][new_j].parent_j = j
+  if not found_dest:
+    print("Failed to find the destination cell")
+def main():
+  grid = [
+    [1, 0, 1, 1, 1, 1, 0, 1, 1, 1],
+    [1, 1, 1, 0, 1, 1, 1, 0, 1, 1],
+    [1, 1, 1, 0, 1, 1, 0, 1, 0, 1],
+    [0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+    [1, 1, 1, 0, 1, 1, 1, 0, 1, 0],
+    [1, 0, 1, 1, 1, 1, 0, 1, 0, 0],
+    [1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+    [1, 0, 1, 1, 1, 1, 0, 1, 1, 1],
+    [1, 1, 1, 0, 0, 0, 1, 0, 0, 1]
+  ]
+  src = [8, 0]
+  dest = [0, 0]
+  a_star_search(grid, src, dest)
+if __name__ == "__main__":
+  main()
+
+
+
+5.Tower of honai:
+
+def TowerOfHanoi(n , source, destination, auxiliary):
+  if n==1:
+    print ("Move disk 1 from source",source,"to destination",destination)
+    return
+  TowerOfHanoi(n-1, source, auxiliary, destination)
+  print ("Move disk",n,"from source",source,"to destination",destination)
+  TowerOfHanoi(n-1, auxiliary, destination, source)
+
+n = 4
+TowerOfHanoi(n,'A','B','C')
+
+
+6.Hill climbing:
+
+import random
+
+def fitness_function(solution):
+    return sum(solution)
+
+def mutate(solution):
+    idx = random.randint(0, len(solution) - 1)
+    if solution[idx] == 0:
+        solution[idx] = 1
+    else:
+        solution[idx] = 0
+    return solution
+
+def hill_climbing(initial_solution, max_iterations=1000):
+    current_solution = initial_solution
+    current_fitness = fitness_function(current_solution)
+
+    best_solution = current_solution
+    best_fitness = current_fitness
+
+    for _ in range(max_iterations):
+        neighbor = mutate(current_solution.copy())
+        neighbor_fitness = fitness_function(neighbor)
+        if neighbor_fitness > current_fitness:
+            current_solution = neighbor
+            current_fitness = neighbor_fitness
+            if current_fitness > best_fitness:
+                best_solution = current_solution
+                best_fitness = current_fitness
+
+    return best_solution, best_fitness
+
+initial_solution = [random.randint(0, 1) for _ in range(10)]
+best_solution, best_fitness = hill_climbing(initial_solution)
+print("Best solution:", best_solution)
+print("Best fitness:", best_fitness)
+
+
+7.4 Queen:
+
+N = 4
+ 
+ld = [0] * 30
+ 
+rd = [0] * 30
+ 
+cl = [0] * 30
+ 
+def printSolution(board):
+    for i in range(N):
+        for j in range(N):
+            print(" Q " if board[i][j] == 1 else " . ", end="")
+        print()
+ 
+ 
+def solveNQUtil(board, col):
+    if col >= N:
+        return True
+ 
+    for i in range(N):
+        if (ld[i - col + N - 1] != 1 and rd[i + col] != 1) and cl[i] != 1:
+            board[i][col] = 1
+            ld[i - col + N - 1] = rd[i + col] = cl[i] = 1
+ 
+            if solveNQUtil(board, col + 1):
+                return True
+ 
+            board[i][col] = 0  
+            ld[i - col + N - 1] = rd[i + col] = cl[i] = 0
+   
+def solveNQ():
+    board = [[0 for _ in range(N)] for _ in range(N)]
+ 
+    if not solveNQUtil(board, 0):
+        print("Solution does not exist")
+        return False
+ 
+    printSolution(board)
+    return True
+ 
+ 
+if __name__ == "__main__":
+    solveNQ()
+
+
+
+8. 8 puzzle :
+
+import copy
+from heapq import heappush, heappop
+n = 3
+
+rows = [ 1, 0, -1, 0 ]
+cols = [ 0, -1, 0, 1 ]
+
+class priorityQueue:
+    def __init__(self):
+        self.heap = []
+
+    def push(self, key):
+        heappush(self.heap, key)
+    def pop(self):
+        return heappop(self.heap)
+    def empty(self):
+        if not self.heap:
+            return True
+        else:
+            return False
+
+class nodes:
+
+    def __init__(self, parent, mats, empty_tile_posi,
+                costs, levels):
+        self.parent = parent
+        self.mats = mats
+        self.empty_tile_posi = empty_tile_posi
+
+        self.costs = costs
+
+        self.levels = levels
+    def __lt__(self, nxt):
+        return self.costs < nxt.costs
+def calculateCosts(mats, final) -> int:
+
+    count = 0
+    for i in range(n):
+        for j in range(n):
+            if ((mats[i][j]) and
+                (mats[i][j] != final[i][j])):
+                count += 1
+
+    return count
+
+def newNodes(mats, empty_tile_posi, new_empty_tile_posi,
+            levels, parent, final) -> nodes:
+    new_mats = copy.deepcopy(mats)
+    x1 = empty_tile_posi[0]
+    y1 = empty_tile_posi[1]
+    x2 = new_empty_tile_posi[0]
+    y2 = new_empty_tile_posi[1]
+    new_mats[x1][y1], new_mats[x2][y2] = new_mats[x2][y2], new_mats[x1][y1]
+
+    costs = calculateCosts(new_mats, final)
+
+    new_nodes = nodes(parent, new_mats, new_empty_tile_posi,
+                    costs, levels)
+    return new_nodes
+
+def printMatsrix(mats):
+
+    for i in range(n):
+        for j in range(n):
+            print("%d " % (mats[i][j]), end = " ")
+
+        print()
+def isSafe(x, y):
+
+    return x >= 0 and x < n and y >= 0 and y < n
+def printPath(root):
+
+    if root == None:
+        return
+
+    printPath(root.parent)
+    printMatsrix(root.mats)
+    print()
+def solve(initial, empty_tile_posi, final):
+
+    pq = priorityQueue()
+
+    costs = calculateCosts(initial, final)
+    root = nodes(None, initial,
+                empty_tile_posi, costs, 0)
+
+    pq.push(root)
+    while not pq.empty():
+        minimum = pq.pop()
+
+        if minimum.costs == 0:
+            printPath(minimum)
+            return
+        for i in range(n):
+            new_tile_posi = [
+                minimum.empty_tile_posi[0] + rows[i],
+                minimum.empty_tile_posi[1] + cols[i], ]
+
+            if isSafe(new_tile_posi[0], new_tile_posi[1]):
+
+                child = newNodes(minimum.mats,
+                                minimum.empty_tile_posi,
+                                new_tile_posi,
+                                minimum.levels + 1,
+                                minimum, final,)
+
+                pq.push(child)
+initial = [ [ 1, 2, 3 ],
+            [ 5, 6, 0 ],
+            [ 7, 8, 4 ] ]
+final = [ [ 1, 2, 3 ],
+        [ 5, 8, 6 ],
+        [ 0, 7, 4 ] ]
+empty_tile_posi = [ 1, 2 ]
+
+solve(initial, empty_tile_posi, final)
+
+
+9.Travelling salesman:
+
+
+from sys import maxsize 
+from itertools import permutations
+V = 4
+ 
+def travellingSalesmanProblem(graph, s): 
+ 
+    vertex = [] 
+    for i in range(V): 
+        if i != s: 
+            vertex.append(i) 
+ 
+    min_path = maxsize 
+    next_permutation=permutations(vertex)
+    for i in next_permutation:
+ 
+        current_pathweight = 0
+ 
+        k = s 
+        for j in i: 
+            current_pathweight += graph[k][j] 
+            k = j 
+        current_pathweight += graph[k][s] 
+ 
+        min_path = min(min_path, current_pathweight) 
+         
+    return min_path 
+
+if __name__ == "__main__": 
+ 
+    graph = [[0, 10, 15, 20], [10, 0, 35, 25], 
+            [15, 35, 0, 30], [20, 25, 30, 0]] 
+    s = 0
+    print(travellingSalesmanProblem(graph, s))
+
+
+
+
+
+
+
+
+
