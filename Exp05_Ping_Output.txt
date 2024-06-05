@@ -1,0 +1,55 @@
+Ping Client :
+import java.io.*;
+import java.net.*;
+import java.util.Calendar;
+@SuppressWarnings("deprecation")
+class Ping_Client
+{
+public static void main(String args[])throws Exception
+{
+String str;
+int c=0;
+long t1,t2;
+Socket s=new Socket("127.0.0.1",5555);
+DataInputStream dis=new DataInputStream(s.getInputStream());
+PrintStream out=new PrintStream(s.getOutputStream());
+while(c<4)
+{
+t1=System.currentTimeMillis();
+str="Welcome to network programming world";
+out.println(str);
+System.out.println(dis.readLine());
+t2=System.currentTimeMillis();
+System.out.println(";TTL="+(t2-t1)+"ms");
+c++;
+}
+s.close();
+}
+}
+
+Ping Server :
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.text.*;
+@SuppressWarnings("deprecation")
+class Ping_Server
+{
+public static void main(String args[])throws Exception
+{
+ServerSocket ss=new ServerSocket(5555);
+Socket s=ss.accept();
+int c=0;
+while(c<4)
+{
+DataInputStream dis=new DataInputStream(s.getInputStream());
+PrintStream out=new PrintStream(s.getOutputStream());
+String str=dis.readLine();
+out.println("Reply from"+InetAddress.getLocalHost()+";Length"+str.length());
+c++;
+}
+s.close();
+}
+}
+
+
